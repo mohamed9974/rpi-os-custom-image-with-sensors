@@ -19,11 +19,11 @@ def install_mu_apt_dependencies(child):
     child.sendline("sudo apt-get install -y xvfb")
     child.expect_exact(customise_os.BASH_PROMPT, timeout=15*60)
     child.sendline("sudo apt-get install -y git python3-pip")
-    child.expect_exact(customise_os.BASH_PROMPT)
+    child.expect_exact(customise_os.BASH_PROMPT, timeout=15*60)
     child.sendline("pip3 install paho-mqtt")
-    child.expect_exact(customise_os.BASH_PROMPT)
+    child.expect_exact(customise_os.BASH_PROMPT, timeout=15*60)
     child.sendline("wget https://raw.githubusercontent.com/mohamed9974/rpi-os-custom-image-with-sensors/main/emulated_senosrs/scripts/simulate.py")
-    child.expect_exact(customise_os.BASH_PROMPT)
+    child.expect_exact(customise_os.BASH_PROMPT, timeout=15*60)
 
 
 def run_edits(img_path, needs_login=True):
