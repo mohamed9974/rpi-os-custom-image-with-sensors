@@ -2,6 +2,12 @@
 
 GIB_IN_BYTES="1073741824"
 
+# #check if sshpass is installed
+# if ! [ -x "$(command -v sshpass)" ]; then
+#   echo "sshpass is not installed"
+#   exit 1
+# fi
+
 # check if the emulated-entrypoint.sh file exists
 if [ ! -e emulated-entrypoint.sh ]; then
   echo "No emulated-entrypoint.sh detected!"
@@ -9,9 +15,11 @@ if [ ! -e emulated-entrypoint.sh ]; then
 fi
 chmod +x emulated-entrypoint.sh
 
-# ask the user for the target ip address
-echo "Enter the IP address of the MQTT broker: "
-read IP
+# env
+# print the environment variables
+echo "IP address of the MQTT broker is: "
+echo ${SERVER_IP_ADDRESS}
+
 
 # check if the filesystem image exists
 target="${1:-pi1}"
@@ -44,7 +52,7 @@ if [ "${target}" = "pi1" ]; then
   machine=versatilepb
   memory=256m
   root=/dev/sda2
-  nic="--net nic --net user,hostfwd=tcp::5022-:22"
+  nic="-net nic --net user,dnssearch=mosquitto,hostfwd=tcp::5022-:22"
 elif [ "${target}" = "pi2" ]; then
   emulator=qemu-system-arm
   machine=raspi2b
@@ -52,7 +60,7 @@ elif [ "${target}" = "pi2" ]; then
   kernel_pattern=kernel7.img
   dtb_pattern=bcm2709-rpi-2-b.dtb
   append="dwc_otg.fiq_fsm_enable=0"
-  nic="-netdev user,id=net0,hostfwd=tcp::5022-:22 -device usb-net,netdev=net0"
+  nic="-netdev user,id=net0,dnssearch=mosquitto,hostfwd=tcp::5022-:22 -device usb-net,netdev=net0"
 elif [ "${target}" = "pi3" ]; then
   emulator=qemu-system-aarch64
   machine=raspi3b
@@ -60,7 +68,7 @@ elif [ "${target}" = "pi3" ]; then
   kernel_pattern=kernel8.img
   dtb_pattern=bcm2710-rpi-3-b-plus.dtb
   append="dwc_otg.fiq_fsm_enable=0"
-  nic="-netdev user,id=net0,hostfwd=tcp::5022-:22 -device usb-net,netdev=net0"
+  nic="-netdev user,id=net0,dnssearch=mosquitto,hostfwd=tcp::5022-:22 -device usb-net,netdev=net0"
 else
   echo "Target ${target} not supported"
   echo "Supported targets: pi1 pi2 pi3"
@@ -93,8 +101,9 @@ if [ "${kernel}" = "" ] || [ "${dtb}" = "" ]; then
   exit 2
 fi
 
-echo "testing where qemu is"
-echo "Booting QEMU machine \"${machine}\" with kernel=${kernel} dtb=${dtb}"
+echo "Booting QEMU machine \"${machine}\" with kernel=${kernel} dtb=${dtb} and demonizing"
+
+
 ${emulator} \
   --machine "${machine}" \
   --cpu arm1176 \
@@ -107,9 +116,38 @@ ${emulator} \
   --no-reboot \
   --display none \
   --serial mon:stdio 
+  
 
-#install sshpass
-sudo apt-get install -y sshpass
+  # -virtfs local,path=/sdcard,mount_tag=sdcard,security_model=none \
+  #bind the /etc/hosts file to the emulated machine
+  #bind the /etc/resolv.conf file to the emulated machine
+  #bind the emulated-entrypoint.sh file to the emulated machine
+  #make the emulated machine run the emulated-entrypoint.sh file
+  # --serial none \
+  # --serial mon:stdio
 
-# run the emulated-entrypoint.sh file inside the qemu machine
-sshpass -p "raspberry" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 5022 pi@localhost "bash -s" < emulated-entrypoint.sh $IP
+echo "Waiting for QEMU machine to boot..."
+
+  # --bind /etc/hosts \
+  # --bind /etc/resolv.conf \ # add a bind mount to the emulated-entrypoint.sh file
+  # --bind emulated-entrypoint.sh # and make the machine run the emulated-entrypoint.sh file
+  # --run emulated-entrypoint.sh &
+
+# # busy wait till the docker container is up
+# while ! nc -z localhost 5022; do
+#   #print the nohup.out file to the console
+#   echo "Waiting for QEMU machine to boot..."
+# done
+
+# # BUSY WAITING FOR THE QEMU MACHINE TO BOOT
+# echo "Waiting for QEMU machine to boot..."
+# while ! nc -z localhost 5022; do
+#   sleep 0.1 # wait for 1/10 of the second before check again
+# done
+
+# # copy the /etc/hosts file and /etc/resolv.conf file to the qemu machine
+# /usr/bin/local/sshpass -p "raspberry" scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -P 5022 /etc/hosts /etc/resolv.conf pi@localhost:/home/pi
+
+# # run the emulated-entrypoint.sh file inside the qemu machine
+# /usr/bin/local/sshpass -p "raspberry" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 5022 pi@localhost "bash -s" < emulated-entrypoint.sh $SERVER_IP_ADDRESS
+

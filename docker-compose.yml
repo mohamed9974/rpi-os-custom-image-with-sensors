@@ -1,0 +1,9 @@
+# build and run the container in this docker-compose.yml file
+version: '3.1'
+services:
+  rpios:
+    build: .
+    ports:
+      - "5022:5022"
+    environment:
+      SERVER_IP_ADDRESS: 10.10.10.10

@@ -126,3 +126,5 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+emulated-entrypoint.sh
+2022-04-04-raspios-buster-armhf-lite-mu.img.zip
