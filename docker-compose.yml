@@ -5,5 +5,5 @@ services:
     build: .
     ports:
       - "5022:5022"
-    environment:
-      SERVER_IP_ADDRESS: 10.10.10.10
+# set the name of the image to be built
+    image: ghcr.io/mohamed9974/rpi-os-custom-with-sensors/qemu-rpi-os-sensor:latest

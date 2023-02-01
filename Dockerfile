@@ -28,13 +28,13 @@ ARG FILE_SUFFIX="autologin-ssh-expanded"
 # This only needs to be changed if the releases filename format changes
 ARG FILE_PREXIF="2022-04-04-raspios-buster-armhf-lite-mu.img"
 
-# ARG FILESYSTEM_IMAGE_URL="https://github.com/mohamed9974/rpi-os-custom-image-with-sensors/releases/download/"${GH_TAG}"/"${FILE_PREXIF}".zip"
-# ADD $FILESYSTEM_IMAGE_URL /filesystem.zip
+ARG FILESYSTEM_IMAGE_URL="https://github.com/mohamed9974/rpi-os-custom-image-with-sensors/releases/download/"${GH_TAG}"/"${FILE_PREXIF}".zip"
+ADD $FILESYSTEM_IMAGE_URL /filesystem.zip
 
-COPY 2022-04-04-raspios-buster-armhf-lite-mu.img.zip /filesystem.zip
+# COPY 2022-04-04-raspios-buster-armhf-lite-mu.img.zip /filesystem.zip
 
 COPY entrypoint.sh /entrypoint.sh
-COPY emulated-entrypoint.sh /emulated-entrypoint.sh
+# COPY emulated-entrypoint.sh /emulated-entrypoint.sh
 
 # make an enviroment variable such that the script that is running inside of the container can access it
 # the vairable is the server ip address that is going to be supplied to the container when it is run

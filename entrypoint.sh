@@ -8,17 +8,13 @@ GIB_IN_BYTES="1073741824"
 #   exit 1
 # fi
 
-# check if the emulated-entrypoint.sh file exists
-if [ ! -e emulated-entrypoint.sh ]; then
-  echo "No emulated-entrypoint.sh detected!"
-  exit 1
-fi
-chmod +x emulated-entrypoint.sh
+# # check if the emulated-entrypoint.sh file exists
+# if [ ! -e emulated-entrypoint.sh ]; then
+#   echo "No emulated-entrypoint.sh detected!"
+#   exit 1
+# fi
+# chmod +x emulated-entrypoint.sh
 
-# env
-# print the environment variables
-echo "IP address of the MQTT broker is: "
-echo ${SERVER_IP_ADDRESS}
 
 
 # check if the filesystem image exists
@@ -37,6 +33,41 @@ if [ ! -e $image_path ]; then
   fi
 fi
 
+# splitip () {
+#     local IFS
+#     IFS=.
+#     set -- $*
+#     echo "$@"
+# }
+# Get the IP address of the host machine
+# host_ip=$(ip addr show | grep 'inet ' | grep -v '127.0.0.1' | awk '{print $2}' | cut -d/ -f1 | head -1 | cut -d. -f1-3)
+# echo $host_ip
+# # Split the IP address into its octets
+# # x=$(splitip $host_ip)
+# # set -- $x
+# # i1=$1
+# # i2=$2
+# # i3=$3
+# # i4=$4
+
+# # echo "Host IP: $x"
+# # echo "i1: $i1"
+# # echo "i2: $i2"
+# # echo "i3: $i3"
+# # echo "i4: $i4"
+# # dhcp_start="$i1.$i2.$i3.$i4"
+# # dns_ip="$i1.$i2.$i3.3"
+# # Calculate the starting IP address for the guest machine
+# guest_start_ip="$host_ip.15"
+
+# # Calculate the IP address of the virtual nameserver
+# dns_ip="$host_ip.3"
+nameserver=$(grep nameserver /etc/resolv.conf | awk '{print $2}')
+search2=$(grep search /etc/resolv.conf | awk '{print $2}')
+search3=$(grep search /etc/resolv.conf | awk '{print $3}')
+search4=$(grep search /etc/resolv.conf | awk '{print $4}')
+
+
 qemu-img info $image_path
 image_size_in_bytes=$(qemu-img info --output json $image_path | grep "virtual-size" | awk '{print $2}' | sed 's/,//')
 if [[ "$(($image_size_in_bytes % ($GIB_IN_BYTES * 2)))" != "0" ]]; then
@@ -52,7 +83,7 @@ if [ "${target}" = "pi1" ]; then
   machine=versatilepb
   memory=256m
   root=/dev/sda2
-  nic="-net nic --net user,dnssearch=mosquitto,hostfwd=tcp::5022-:22"
+  nic="-net nic --net user,dnssearch=$search2,dnssearch=$search3,dnssearch=$search4,dns="$nameserver",hostfwd=tcp::5022-:22"
 elif [ "${target}" = "pi2" ]; then
   emulator=qemu-system-arm
   machine=raspi2b
@@ -60,7 +91,7 @@ elif [ "${target}" = "pi2" ]; then
   kernel_pattern=kernel7.img
   dtb_pattern=bcm2709-rpi-2-b.dtb
   append="dwc_otg.fiq_fsm_enable=0"
-  nic="-netdev user,id=net0,dnssearch=mosquitto,hostfwd=tcp::5022-:22 -device usb-net,netdev=net0"
+  nic="-netdev user,id=net0,dnssearch=$search2,dnssearch=$search3,dnssearch=$search4,dns="$nameserver",hostfwd=tcp::5022-:22 -device usb-net,netdev=net0"
 elif [ "${target}" = "pi3" ]; then
   emulator=qemu-system-aarch64
   machine=raspi3b
@@ -68,7 +99,7 @@ elif [ "${target}" = "pi3" ]; then
   kernel_pattern=kernel8.img
   dtb_pattern=bcm2710-rpi-3-b-plus.dtb
   append="dwc_otg.fiq_fsm_enable=0"
-  nic="-netdev user,id=net0,dnssearch=mosquitto,hostfwd=tcp::5022-:22 -device usb-net,netdev=net0"
+  nic="-netdev user,id=net0,dnssearch=$search2,dnssearch=$search3,dnssearch=$search4,dns="$nameserver",hostfwd=tcp::5022-:22 -device usb-net,netdev=net0"
 else
   echo "Target ${target} not supported"
   echo "Supported targets: pi1 pi2 pi3"
