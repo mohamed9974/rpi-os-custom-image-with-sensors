@@ -2,4 +2,4 @@
 #!/bin/bash 
 
 # run the python script
-python3 /home/pi/entrypoint.py mosquitto
+nohup python3 /home/pi/simulate.py mosquitto &
