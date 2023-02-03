@@ -13,7 +13,7 @@ MQTT_PORT = 1883
 # get the machine name from the system not from the user
 machine_name = socket.gethostname()
 # MQTT topic
-MQTT_TOPIC = "/sensors"
+MQTT_TOPIC = "/sensors/office"
 
 # Create MQTT client
 client = mqtt.Client()
