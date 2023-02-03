@@ -20,7 +20,7 @@ def install_mu_apt_dependencies(child):
     child.expect_exact(customise_os.BASH_PROMPT, timeout=15*60)
     child.sendline("pip3 install paho-mqtt")
     child.expect_exact(customise_os.BASH_PROMPT, timeout=15*60)
-    child.sendline("wget https://raw.githubusercontent.com/mohamed9974/rpi-os-custom-image-with-sensors/main/emulated_senosrs/scripts/simulate.py")
+    child.sendline("wget https://raw.githubusercontent.com/mohamed9974/rpi-os-custom-image-with-sensors/main/emulated_senosrs/scripts/simulate_class.py")
     child.expect_exact(customise_os.BASH_PROMPT, timeout=15*60)
     child.sendline("wget https://raw.githubusercontent.com/mohamed9974/rpi-os-custom-image-with-sensors/main/startup.sh")
     child.expect_exact(customise_os.BASH_PROMPT, timeout=15*60)

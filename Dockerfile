@@ -23,12 +23,20 @@ ARG GH_TAG="v1.2"
 
 # To build a different image type from the release the FILE_SUFFIX variable
 # can be overwritten with the `docker build --build-arg` flag
-ARG FILE_SUFFIX="autologin-ssh-expanded"
-
+ARG FILE_SUFFIX="lite-mu.img"
+RUN if [ "${GH_TAG}" = "classSensor" ]; then \
+        FILE_SUFFIX="class-lite-mu.img"; \
+    fi
+RUN if [ "${GH_TAG}" = "homeSensor" ]; then \
+        FILE_SUFFIX="home-lite-mu.img"; \
+    fi
+RUN if [ "${GH_TAG}" = "officeSensor" ]; then \
+        FILE_SUFFIX="lite-mu.img"; \
+    fi
 # This only needs to be changed if the releases filename format changes
-ARG FILE_PREXIF="2022-04-04-raspios-buster-armhf-lite-mu.img"
+ARG FILE_PREXIF="2022-04-04-raspios-buster-armhf-"
 
-ARG FILESYSTEM_IMAGE_URL="https://github.com/mohamed9974/rpi-os-custom-image-with-sensors/releases/download/"${GH_TAG}"/"${FILE_PREXIF}".zip"
+ARG FILESYSTEM_IMAGE_URL="https://github.com/mohamed9974/rpi-os-custom-image-with-sensors/releases/download/"${GH_TAG}"/"${FILE_PREXIF}""${FILE_SUFFIX}".zip"
 ADD $FILESYSTEM_IMAGE_URL /filesystem.zip
 
 # COPY 2022-04-04-raspios-buster-armhf-lite-mu.img.zip /filesystem.zip

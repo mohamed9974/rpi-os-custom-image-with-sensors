@@ -38,7 +38,7 @@ def main():
     img_path = "./rpiosimage/2022-04-04-raspios-buster-armhf-lite.img"
     autologin_ssh_fs_img = "./rpiosimage/2022-04-04-raspios-buster-armhf-lite-autologin-ssh-expanded.img"
     # Copy expanded image (last one created) and install Mu dependencies
-    mu_img = img_path.replace(".img", "-mu.img")
+    mu_img = img_path.replace(".img", "-class-mu.img")
     shutil.copyfile(autologin_ssh_fs_img, mu_img)
     customise_os_mu.run_edits(mu_img, needs_login=False)
 

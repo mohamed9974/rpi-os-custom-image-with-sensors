@@ -2,4 +2,4 @@
 #!/bin/bash 
 
 # run the python script as user pi
-sudo su - pi -c "nohup python3 /home/pi/simulate.py mosquitto &"
+sudo su - pi -c "nohup python3 /home/pi/simulate_home.py mosquitto &"
