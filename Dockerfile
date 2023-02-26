@@ -23,20 +23,12 @@ ARG GH_TAG="v1.2"
 
 # To build a different image type from the release the FILE_SUFFIX variable
 # can be overwritten with the `docker build --build-arg` flag
-ARG FILE_SUFFIX="lite-mu.img"
-RUN if [ "${GH_TAG}" = "classSensor" ]; then \
-        FILE_SUFFIX="class-lite-mu.img"; \
-    fi
-RUN if [ "${GH_TAG}" = "homeSensor" ]; then \
-        FILE_SUFFIX="home-lite-mu.img"; \
-    fi
-RUN if [ "${GH_TAG}" = "officeSensor" ]; then \
-        FILE_SUFFIX="lite-mu.img"; \
-    fi
+ARG FILE_SUFFIX="-lite-mu.img"
+
 # This only needs to be changed if the releases filename format changes
 ARG FILE_PREXIF="2022-04-04-raspios-buster-armhf-"
-
-ARG FILESYSTEM_IMAGE_URL="https://github.com/mohamed9974/rpi-os-custom-image-with-sensors/releases/download/"${GH_TAG}"/"${FILE_PREXIF}""${FILE_SUFFIX}".zip"
+RUN echo "Building image with ${FILE_PREXIF}${GH_TAG}${FILE_SUFFIX}.zip"
+ARG FILESYSTEM_IMAGE_URL="https://github.com/mohamed9974/rpi-os-custom-image-with-sensors/releases/download/"${GH_TAG}"/"${FILE_PREXIF}""${GH_TAG}""${FILE_SUFFIX}".zip"
 ADD $FILESYSTEM_IMAGE_URL /filesystem.zip
 
 # COPY 2022-04-04-raspios-buster-armhf-lite-mu.img.zip /filesystem.zip
@@ -48,7 +40,6 @@ COPY entrypoint.sh /entrypoint.sh
 # the vairable is the server ip address that is going to be supplied to the container when it is run
 
 ENV SERVER_IP_ADDRESS=$SERVER_IP_ADDRESS
-
 
 # entrypoint.sh has been added in the parent lukechilds/dockerpi:vm
 ENTRYPOINT ["./entrypoint.sh"]
